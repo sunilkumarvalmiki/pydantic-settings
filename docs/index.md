@@ -104,6 +104,19 @@ print(Settings().model_dump())
 
     Check the [Environment variable names documentation](#environment-variable-names) for more information.
 
+!!! note "Class variables"
+    To keep a class-level attribute out of settings fields, annotate it with `ClassVar` from `typing`,
+    for example `service_name: ClassVar[str] = 'my-service'`. It is then a class variable rather than a
+    model field, so settings sources do not populate it.
+
+    Class variables are absent from `model_fields`, `model_dump()` and the generated JSON schema, and
+    cannot be set through the settings initialiser. A matching initialiser argument or dotenv entry
+    can instead be treated as extra input and raise a `ValidationError` with the default `extra='forbid'`.
+    This workaround does not keep the attribute as a normal field or selectively exclude sources.
+
+    `Field(exclude=True)` is not an alternative: it excludes a field from serialization, but does not
+    prevent settings sources from loading its value.
+
 ## Validation of default values
 
 Unlike pydantic `BaseModel`, default values of `BaseSettings` fields are validated by default.
